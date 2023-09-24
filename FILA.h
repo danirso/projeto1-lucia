@@ -1,40 +1,18 @@
 #ifndef FILA_H_INCLUDED
 #define FILA_H_INCLUDED
 
-/* FUN��ES DE MANIPULA��O DE PFILA
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-Fila* CriaFila()  CRIA A FILA
-
-int VaziaFila (Fila* f) VERIFICA SE A FILA EST� VAIZA
-
-void InsereFila (Fila* f, int v) INSER��O
-
-int RetiraFila (Fila* f) REMO��O
-
-Fila* liberaFila (Fila* f) LIBERA A FILA
-
-void imprimeFila (Fila* f)IMPRIME A FILA
-*/
-typedef struct nos
-{
-    int info;
-    struct nos *prox;
-}No;
-
-typedef struct fila
-{
-    No * ini;
-    No * fim;
-} Fila;
-struct Data
+typedef struct Data
 {
     int dia;
     int mes;
     int ano;
-}; typedef struct Data data;
+} data;
 
-
-struct Tarefa
+typedef struct Tarefa
 {
     int codigo;
     char nome[30];
@@ -42,80 +20,111 @@ struct Tarefa
     data inicio;
     data fim;
     int status;
-}; typedef struct Tarefa tarefa;
+} tarefa;
 
-int VaziaFila (Fila* f)
+typedef struct nos
 {
-    if (f->ini==NULL) return 1;
-    return 0;
+    tarefa info;
+    struct nos *prox;
+} No;
 
+typedef struct fila
+{
+    No *ini;
+    No *fim;
+} Fila;
+
+int VaziaFila(Fila *f)
+{
+    if (f->ini == NULL)
+        return 1;
+    return 0;
 }
 
-
-Fila* CriaFila ()
+Fila *CriaFila()
 {
-    Fila* f = (Fila*) malloc(sizeof(Fila));
+    Fila *f = (Fila *)malloc(sizeof(Fila));
     f->ini = f->fim = NULL;
     return f;
 }
 
-No* ins_fim (No* fim, tarefa A)
+No* ins_fim(No* fim, tarefa A)
 {
     No* p = (No*) malloc(sizeof(No));
     p->info = A;
     p->prox = NULL;
-    if (fim != NULL) /* verifica se lista n�o estava vazia */
-    fim->prox = p;
+    if (fim != NULL) 
+        fim->prox = p;
     return p;
 }
 
-void InsereFila (Fila* f, tarefa v)
+void InsereFila(Fila *f, int codigo, const char* nome, const char* projeto, data inicio, data fim, int status)
 {
-    f->fim = ins_fim(f->fim,v);
-    if (f->ini==NULL) /* fila antes vazia? */
-    f->ini = f->fim;
+    tarefa trf;
+    trf.codigo = codigo;
+    strncpy(trf.nome, nome, sizeof(trf.nome));
+    strncpy(trf.projeto, projeto, sizeof(trf.projeto));
+    trf.inicio = inicio;
+    trf.fim = fim;
+    trf.status = status;
+
+    f->fim = ins_fim(f->fim, trf);
+    if (f->ini == NULL) 
+    {
+        f->ini = f->fim;
+    }
 }
 
-No* retira_ini (No* ini)
+No *retira_ini(No *ini)
 {
+    
     No* p = ini->prox;
     free(ini);
     return p;
 }
 
-int RetiraFila (Fila* f)
+tarefa RetiraFila(Fila* f)
 {
-    int v;
+    tarefa trf;
     if (VaziaFila(f))
     {
         printf("Fila vazia.\n");
-        exit(0); /* aborta programa */
+        exit(0); 
     }
-    v = f->ini->info;
+    
+    trf = f->ini->info;
     f->ini = retira_ini(f->ini);
-    if (f->ini == NULL) /* fila ficou vazia? */
-    f->fim = NULL;
-    return v;
+    
+    if (VaziaFila(f)) 
+    {
+        f->fim = NULL;
+    }
+    
+    return trf;
 }
 
-void imprimeFila (Fila* f)
+
+void imprimeFila(Fila *f)
 {
-    No* q;
+    No *q;
     printf("\n\t\t");
-    for (q=f->ini; q!=NULL; q=q->prox)
+    for (q = f->ini; q != NULL; q = q->prox)
     {
-        printf("%d - ",q->info);
+        printf("Código: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n ",
+               q->info.codigo, q->info.nome, q->info.projeto,
+               q->info.inicio.dia, q->info.inicio.mes, q->info.inicio.ano,
+               q->info.fim.dia, q->info.fim.mes, q->info.fim.ano,
+               q->info.status);
     }
     printf("\n");
 }
 
-
-Fila* liberaFila (Fila* f)
+Fila *liberaFila(Fila *f)
 {
-    No* q = f->ini;
-    while (q!=NULL)
+    No *q = f->ini;
+    while (q != NULL)
     {
-        No* t = q->prox;
+        No *t = q->prox;
         free(q);
         q = t;
     }
@@ -123,4 +132,4 @@ Fila* liberaFila (Fila* f)
     return NULL;
 }
 
-#endif // FILA_H_INCLUDED
+#endif
