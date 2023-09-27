@@ -9,7 +9,7 @@
 
 void menu()
 {
-    printf("Sistema de Gerenciamento 5000\n");
+    printf("=========SISTEMA DE GERENCIAMENTO DE TAREFAS=========\n");
     printf("\t1 - Adicionar uma nova tarefa\n");
     printf("\t2 - Modificar uma tarefa\n");
     printf("\t3 - Concluir uma tarefa\n");
@@ -118,7 +118,7 @@ void ChangeTask (Fila *f)
     }while(c == tolower('s'));
 }
 
-void CompleteTask(Fila *f, No *n)
+Lista *CompleteTask(Fila *f, Lista *n)
 {   
     time_t agora;
     struct tm *atual;
@@ -134,7 +134,7 @@ void CompleteTask(Fila *f, No *n)
     if(q == NULL)
     {
         printf("Tarefa com o codigo %d nao encontrada",code);
-        return;
+        return n;
     }
 
     time(&agora);
@@ -145,68 +145,49 @@ void CompleteTask(Fila *f, No *n)
     q->info.fim.ano = atual->tm_year;
     q->info.fim.ano += 1900;
 
-    
-    /*while (n != NULL)
-    {
-        printf(" Código: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n ",
-               n->info.codigo, n->info.nome, n->info.projeto,
-               n->info.inicio.dia, n->info.inicio.mes, n->info.inicio.ano,
-               n->info.fim.dia, n->info.fim.mes, n->info.fim.ano,
-               n->info.status);
-        n = n->prox;
-    }
-    
-    /*No *aux1 = q;
-    No *aux2 = q;
-    No *prev = NULL;
-    
-    while (aux1 !=NULL && aux1->prox != NULL)
-    {
-        aux1 = aux1->prox->prox;
-        prev = aux2;
-        aux2 = aux2->prox;
-    }
+    n = InsereLista(n,q->info);
+    RemoveTarefa(f,q->info.codigo);
 
-    prev->prox = aux2->prox;
-    free(aux2);
-    */
-   printf("Tarefa concluida com sucesso!! aperte enter para continuar");
+    printf("Tarefa concluida com sucesso!! aperte enter para continuar");
+    return n;
 }
 
-/*void TaskStatus(Fila *f)
-{
-    time_t termino;
-    struct tm *atual;
-    int code;
-    No * q = f->ini;
-
-    printf("Insira o codigo da tarefa que deseja verificar o status: ");
-    scanf("%d",&code);
-    while (q != NULL && q->info.codigo != code)
+void PrintPending(Lista *l)
+{   
+    Lista *aux = l;
+    printf("Tarefas pendentes:\n");
+    while(aux!=NULL)
     {
-        q=q->prox;
+        printf(" Código: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+               aux->info.codigo, aux->info.nome, aux->info.projeto,
+               aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
+               aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
+               aux->info.status);
+        aux = aux->prox;
     }
-    if(q == NULL)
-    {
-        printf("Tarefa com o codigo %d nao encontrada",code);
-        return;
-    }
+    printf("Aperte enter para continuar");
+}
 
-    time(&termino);
-    atual = localtime(&termino);
-    if(atual->tm_year>q->info.fim.ano)
+void PrintCompleted(Lista *l)
+{   
+    Lista *aux = l;
+    printf("Tarefas concluidas:\n");
+    while(aux!=NULL)
     {
-        printf("a tarefa esta atrasada!");
-        q->info.status = 1;
+        printf(" Código: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+               aux->info.codigo, aux->info.nome, aux->info.projeto,
+               aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
+               aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
+               aux->info.status);
+        aux = aux->prox;
     }
-    printf("Status da tarefa alterado com sucesso!! aperte enter para continuar");
-}*/
-
+    printf("Aperte enter para continuar");
+}
 
 int main()
 {
     setlocale(LC_ALL,"Portuguese");
-    No *concluidas,*pendentes;
+    Lista *concluidas,*pendentes;
     char continuo = 's';
     int select;
     Fila *trf;
@@ -226,16 +207,16 @@ int main()
                 ChangeTask(trf);
                 break;
             case 3:
-                CompleteTask(trf,concluidas);
+                concluidas = CompleteTask(trf,concluidas);
                 break;
             case 4:
                 //TaskStatus(trf);
                 break;
             case 5:
-                //code
+                PrintPending(pendentes);
                 break;
             case 6:
-                //code
+                PrintCompleted(concluidas);
                 break;
             case 7:
                 //code
@@ -250,6 +231,6 @@ int main()
         fflush(stdin);
         getchar();
     }while(select != 8);
-    imprimeFila(trf);
+    imprimeFila(trf);//LEMBRAR DE TIRAR DEPOIS
     return 0;
 }

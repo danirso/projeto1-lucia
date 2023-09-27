@@ -24,6 +24,13 @@ typedef struct Tarefa
     int status;
 } tarefa;
 
+typedef struct Node
+{
+    tarefa info;
+    struct Node *prox;
+} Lista;
+
+
 typedef struct nos
 {
     tarefa info;
@@ -36,15 +43,15 @@ typedef struct fila
     No *fim;
 } Fila;
 
-No *CriaLista()
+Lista *CriaLista()
 {
     return NULL;
 }
 
-No *InsereLista(No *recebida,tarefa t)
+Lista *InsereLista(Lista *recebida, tarefa t)
 {
-    No *novo;
-    novo = malloc(sizeof(No));
+    Lista *novo;
+    novo = malloc(sizeof(Lista));
     novo->info = t;
     novo->prox = recebida;
     return novo;
@@ -124,7 +131,7 @@ void imprimeFila(Fila *f)
     No *q;
     for (q = f->ini; q != NULL; q = q->prox)
     {
-        printf("Código: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n ",
+        printf(" Código: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
                q->info.codigo, q->info.nome, q->info.projeto,
                q->info.inicio.dia, q->info.inicio.mes, q->info.inicio.ano,
                q->info.fim.dia, q->info.fim.mes, q->info.fim.ano,
@@ -146,4 +153,36 @@ Fila *liberaFila(Fila *f)
     return NULL;
 }
 
+void RemoveTarefa(Fila *f, int codigo)
+{
+    No *ant = NULL;
+    No *atual = f->ini;
+
+    while (atual != NULL && atual->info.codigo != codigo)
+    {
+        ant = atual;
+        atual = atual->prox;
+    }
+
+    // A tarefa foi encontrada na fila, agora a removemos
+
+    if (ant == NULL)
+    {
+        // A tarefa é a primeira da fila
+        f->ini = atual->prox;
+    }
+    else
+    {
+        // A tarefa não é a primeira da fila
+        ant->prox = atual->prox;
+    }
+
+    if (atual == f->fim)
+    {
+        // A tarefa é a última da fila
+        f->fim = ant;
+    }
+
+    free(atual);
+}
 #endif
