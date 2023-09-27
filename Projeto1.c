@@ -1,9 +1,10 @@
-//Leonardo Caberlim de Souza RA:22017958, Daniel Scanavini Rossi RA: 22000787, Lucas Valério Berti RA: 22007440
+//Daniel Scanavini Rossi RA:22000787, Lucas Valério Berti RA:22007440, Leonardo Caberlim de Souza RA:22017958
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 #include "FILA.h"
 
 void menu()
@@ -17,6 +18,7 @@ void menu()
     printf("\t6 - Lista de tarefas concluídas\n");
     printf("\t7 - Lista de tarefas concluídas(Com e sem atrasos)\n");
     printf("\t8 - Sair do programa\n");
+    printf("\t>>");
 }
 
 void AddTask(Fila *f) 
@@ -43,8 +45,9 @@ void AddTask(Fila *f)
     scanf("%d", &j.fim.mes);
     printf("Insira o ano de limite: \n");
     scanf("%d", &j.fim.ano);
-    j.status = 0;
+    j.status = 0; //1:atrasada, 0:em dia, -1:pendente
     InsereFila(f, j.codigo, j.nome, j.projeto, j.inicio, j.fim, j.status);
+    printf("Tarefa inserida com sucesso!! aperte enter para continuar");
 }
 
 void ChangeTask (Fila *f)
@@ -73,6 +76,7 @@ void ChangeTask (Fila *f)
         printf("\t3 - Alterar o nome do projeto\n");
         printf("\t4 - Alterar a data de inicio\n");
         printf("\t5 - Alterar a data de limite\n");
+        printf("\t>>");
         scanf("%d",&select);
 
         switch (select) {
@@ -110,19 +114,105 @@ void ChangeTask (Fila *f)
         printf("Deseja alterar mais algum dado? (s/n)");
         fflush(stdin);
         scanf("%c",&c);
+        printf("Tarefa alterada com sucesso!! aperte enter para continuar");
     }while(c == tolower('s'));
 }
 
+void CompleteTask(Fila *f, No *n)
+{   
+    time_t agora;
+    struct tm *atual;
+    int code;
+    No *q = f->ini;
 
+    printf("Insira o codigo da tarefa que deseja concluir: ");
+    scanf("%d",&code);
+    while (q != NULL && q->info.codigo != code)
+    {
+        q=q->prox;
+    }
+    if(q == NULL)
+    {
+        printf("Tarefa com o codigo %d nao encontrada",code);
+        return;
+    }
+
+    time(&agora);
+    atual = localtime(&agora);
+    q->info.fim.dia = atual->tm_mday;
+    q->info.fim.mes = atual->tm_mon;
+    q->info.fim.mes +=1;
+    q->info.fim.ano = atual->tm_year;
+    q->info.fim.ano += 1900;
+
+    
+    /*while (n != NULL)
+    {
+        printf(" Código: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n ",
+               n->info.codigo, n->info.nome, n->info.projeto,
+               n->info.inicio.dia, n->info.inicio.mes, n->info.inicio.ano,
+               n->info.fim.dia, n->info.fim.mes, n->info.fim.ano,
+               n->info.status);
+        n = n->prox;
+    }
+    
+    /*No *aux1 = q;
+    No *aux2 = q;
+    No *prev = NULL;
+    
+    while (aux1 !=NULL && aux1->prox != NULL)
+    {
+        aux1 = aux1->prox->prox;
+        prev = aux2;
+        aux2 = aux2->prox;
+    }
+
+    prev->prox = aux2->prox;
+    free(aux2);
+    */
+   printf("Tarefa concluida com sucesso!! aperte enter para continuar");
+}
+
+/*void TaskStatus(Fila *f)
+{
+    time_t termino;
+    struct tm *atual;
+    int code;
+    No * q = f->ini;
+
+    printf("Insira o codigo da tarefa que deseja verificar o status: ");
+    scanf("%d",&code);
+    while (q != NULL && q->info.codigo != code)
+    {
+        q=q->prox;
+    }
+    if(q == NULL)
+    {
+        printf("Tarefa com o codigo %d nao encontrada",code);
+        return;
+    }
+
+    time(&termino);
+    atual = localtime(&termino);
+    if(atual->tm_year>q->info.fim.ano)
+    {
+        printf("a tarefa esta atrasada!");
+        q->info.status = 1;
+    }
+    printf("Status da tarefa alterado com sucesso!! aperte enter para continuar");
+}*/
 
 
 int main()
 {
-    setlocale(LC_ALL,"portuguese");
+    setlocale(LC_ALL,"Portuguese");
+    No *concluidas,*pendentes;
     char continuo = 's';
     int select;
     Fila *trf;
     trf = CriaFila(trf);
+    concluidas = CriaLista();
+    pendentes = CriaLista();
     do{
         system("cls");
         menu();
@@ -130,20 +220,36 @@ int main()
         switch (select)
         {
             case 1:
-              AddTask(trf);
+                AddTask(trf);
                 break;
             case 2: 
                 ChangeTask(trf);
                 break;
+            case 3:
+                CompleteTask(trf,concluidas);
+                break;
+            case 4:
+                //TaskStatus(trf);
+                break;
+            case 5:
+                //code
+                break;
+            case 6:
+                //code
+                break;
+            case 7:
+                //code
+                break;
+            case 8:
+                printf("\t programa finalizado com sucesso, aperte enter. \n");
+                break;
             default:
-                printf("Selecao invalida");
+                printf("\t Selecao invalida");
                 break;
         }
-        printf("\nDeseja realizar outra operacao? (s/n)");
         fflush(stdin);
-        scanf("%c",&continuo);
-    }while(continuo == tolower('s'));
+        getchar();
+    }while(select != 8);
     imprimeFila(trf);
-    scanf("%d",&select);
     return 0;
 }

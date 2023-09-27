@@ -4,12 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct Data
 {
     int dia;
     int mes;
     int ano;
+
 } data;
 
 typedef struct Tarefa
@@ -33,6 +35,20 @@ typedef struct fila
     No *ini;
     No *fim;
 } Fila;
+
+No *CriaLista()
+{
+    return NULL;
+}
+
+No *InsereLista(No *recebida,tarefa t)
+{
+    No *novo;
+    novo = malloc(sizeof(No));
+    novo->info = t;
+    novo->prox = recebida;
+    return novo;
+}
 
 int VaziaFila(Fila *f)
 {
@@ -103,11 +119,9 @@ tarefa RetiraFila(Fila* f)
     return trf;
 }
 
-
 void imprimeFila(Fila *f)
 {
     No *q;
-    printf("\n\t\t");
     for (q = f->ini; q != NULL; q = q->prox)
     {
         printf("Código: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n ",
