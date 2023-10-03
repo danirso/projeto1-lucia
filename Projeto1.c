@@ -170,15 +170,12 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
     printf("Insira o codigo da tarefa: ");
     scanf("%d", &code);
     tarefa aux;
-    Fila *aux3 = NULL;
-    aux3 = CriaFila();
     Fila *aux2 = NULL;
     aux2 = CriaFila();
-    aux3 = f;
     // Procurar na fila de tarefas
-    while (!VaziaFila(aux3))
+    while (!VaziaFila(f))
     {
-        aux = RetiraFila(aux3);
+        aux = RetiraFila(f);
         if (aux.codigo != code)
         {
             InsereFila(aux2,aux.codigo, aux.nome, aux.projeto, aux.inicio, aux.fim, aux.status);
@@ -186,11 +183,12 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
         else
         {
             pendentes = InsereLista(pendentes,aux);
-            printf("Tarefa com codigo %d esta pendente e foi removida da fila de tarefas, aperte enter para continuar\n", code);
-            f = aux2;
-            return pendentes;
         }
     }
+    printf("Tarefa com codigo %d esta pendente e foi removida da fila de tarefas, aperte enter para continuar\n", code);
+    f = aux2;
+    return pendentes;
+
     // Se não encontrou na fila, procurar na lista de tarefas pendentes
     while (pendentes != NULL)
     {
