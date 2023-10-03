@@ -57,6 +57,27 @@ Lista *InsereLista(Lista *recebida, tarefa t)
     return novo;
 }
 
+void ImprimeLista(Lista *l)
+{   
+    Lista *aux = l;
+
+    if (l == NULL)
+    {
+        printf("lista vazia!");
+        return;
+    }
+
+    while(aux!=NULL)
+    {
+        printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+               aux->info.codigo, aux->info.nome, aux->info.projeto,
+               aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
+               aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
+               aux->info.status);
+        aux = aux->prox;
+    }
+}
+
 int VaziaFila(Fila *f)
 {
     if (f->ini == NULL)
@@ -137,6 +158,12 @@ void imprimeFila(Fila *f)
                q->info.status);
     }
     printf("\n");
+
+    if (f == NULL)
+    {
+        printf("A fila esta vazia!");
+    }
+    
 }
 
 Fila *liberaFila(Fila *f)

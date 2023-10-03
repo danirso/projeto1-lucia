@@ -172,6 +172,8 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
     tarefa aux;
     Fila *aux2 = NULL;
     aux2 = CriaFila();
+    No *q,*t;
+    
     // Procurar na fila de tarefas
     while (!VaziaFila(f))
     {
@@ -185,8 +187,8 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
             pendentes = InsereLista(pendentes,aux);
         }
     }
-    printf("Tarefa com codigo %d esta pendente e foi removida da fila de tarefas, aperte enter para continuar\n", code);
-    f = aux2;
+    printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes, aperte enter para continuar\n", code);
+    f->ini = aux2->ini;
     return pendentes;
 
     // Se não encontrou na fila, procurar na lista de tarefas pendentes
@@ -206,66 +208,30 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
     }
 }
 
-
-void PrintPending(Lista *l)
-{   
-    Lista *aux = l;
-    printf("Tarefas pendentes:\n");
-    while(aux!=NULL)
-    {
-        printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
-               aux->info.codigo, aux->info.nome, aux->info.projeto,
-               aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
-               aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
-               aux->info.status);
-        aux = aux->prox;
-    }
-    printf("Aperte enter para continuar");
-}
-
-void PrintCompleted(Lista *l)
-{   
-    Lista *aux = l;
-    printf("Tarefas concluídas:\n");
+void Status(Lista *L)
+{
+    Lista *aux = L;
     while (aux != NULL)
     {
-        printf(" Código: %d\n Nome: %s\n Projeto: %s\n Início: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+        if (aux->info.status == 1)
+        {
+            printf("Tarefas concluidas atrasadas: \n");
+            printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
                aux->info.codigo, aux->info.nome, aux->info.projeto,
                aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
                aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
                aux->info.status);
+        }
+        else
+        {
+            printf("Tarefas concluidas em dia: \n");
+            printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+               aux->info.codigo, aux->info.nome, aux->info.projeto,
+               aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
+               aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
+               aux->info.status);
+        }
         aux = aux->prox;
-    }
-    printf("Aperte enter para continuar");
-}
-
-void Status(Fila *trf) {
-    No *q = trf->ini;
-
-    printf("Tarefas Atrasadas:\n");
-    while (q != NULL) {
-        if (q->info.status == 1) {
-            printf(" Código: %d\n Nome: %s\n Projeto: %s\n Início: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
-                   q->info.codigo, q->info.nome, q->info.projeto,
-                   q->info.inicio.dia, q->info.inicio.mes, q->info.inicio.ano,
-                   q->info.fim.dia, q->info.fim.mes, q->info.fim.ano,
-                   q->info.status);
-        }
-        q = q->prox;
-    }
-
-    q = trf->ini;
-
-    printf("Tarefas Sem Atrasos:\n");
-    while (q != NULL) {
-        if (q->info.status == 0) {
-            printf(" Código: %d\n Nome: %s\n Projeto: %s\n Início: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
-                   q->info.codigo, q->info.nome, q->info.projeto,
-                   q->info.inicio.dia, q->info.inicio.mes, q->info.inicio.ano,
-                   q->info.fim.dia, q->info.fim.mes, q->info.fim.ano,
-                   q->info.status);
-        }
-        q = q->prox;
     }
 }
 
@@ -320,13 +286,17 @@ int main()
                 pendentes = TaskStatus(trf,pendentes);
                 break;
             case 5:
-                PrintPending(pendentes);
+                printf("tarefas pendentes: \n");
+                ImprimeLista(pendentes);
+                printf("aperte enter para continuar");
                 break;
             case 6:
-                PrintCompleted(concluidas);
+                printf("tarefas concluidas: \n");
+                ImprimeLista(concluidas);
+                printf("aperte enter para continuar");
                 break;
             case 7:
-                Status(trf);
+                Status(concluidas);
                 break;
             case 8:
                 printf("\t Programa finalizado com sucesso, aperte enter para finalizar \n");
