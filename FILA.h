@@ -97,7 +97,6 @@ void InsereFila(Fila *f, int codigo, const char* nome, const char* projeto, data
         f->ini = f->fim;
     }
 }
-
 No *retira_ini(No *ini)
 {
     

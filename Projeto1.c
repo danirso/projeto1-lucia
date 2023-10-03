@@ -164,99 +164,50 @@ void CompleteTask(Fila *f, Lista **concluidas)
     printf("Tarefa concluida com sucesso!! Pressione enter para continuar");
 }
 
-void TaskStatus(Fila *f, Lista **pendentes)
+Lista *TaskStatus(Fila *f, Lista *pendentes)
 {
     int code;
     printf("Insira o codigo da tarefa: ");
     scanf("%d", &code);
-
-    No *q = f->ini;
-    No *anterior = NULL;
-
-    while (q != NULL)
+    tarefa aux;
+    Fila *aux3 = NULL;
+    aux3 = CriaFila();
+    Fila *aux2 = NULL;
+    aux2 = CriaFila();
+    aux3 = f;
+    // Procurar na fila de tarefas
+    while (!VaziaFila(aux3))
     {
-        if (q->info.codigo == code)
+        aux = RetiraFila(aux3);
+        if (aux.codigo != code)
         {
-            if (q->info.status == 0)
-            {
-                q->info.status = -1;
-
-                if (anterior != NULL)
-                {
-                    anterior->prox = q->prox;
-                }
-                else
-                {
-                    f->ini = q->prox;
-                }
-
-                q->prox = NULL;
-
-                Lista *novo = *pendentes;
-                Lista *anteriorPendentes = NULL;
-
-                while (novo != NULL && (q->info.fim.ano > novo->info.fim.ano ||
-                                        (q->info.fim.ano == novo->info.fim.ano &&
-                                         (q->info.fim.mes > novo->info.fim.mes ||
-                                          (q->info.fim.mes == novo->info.fim.mes &&
-                                           q->info.fim.dia > novo->info.fim.dia)))))
-                {
-                    anteriorPendentes = novo;
-                    novo = novo->prox;
-                }
-
-                if (anteriorPendentes != NULL)
-                {
-                    anteriorPendentes->prox = InsereLista(anteriorPendentes->prox, q->info);
-                }
-                else
-                {
-                    *pendentes = InsereLista(*pendentes, q->info);
-                }
-
-                free(q);
-
-                printf("Tarefa com codigo %d agora esta marcada como pendente e foi movida para a lista de tarefas pendentes\n", code);
-                return;
-            }
-            else if (q->info.status == -1)
-            {
-                q->info.status = 0;
-
-                if (anterior != NULL)
-                {
-                    anterior->prox = q->prox;
-                }
-                else
-                {
-                    f->ini = q->prox;
-                }
-
-                q->prox = NULL;
-
-                if (f->ini == NULL)
-                {
-                    f->ini = q;
-                }
-                else
-                {
-                    f->fim->prox = q;
-                }
-                f->fim = q;
-
-                printf("Tarefa com codigo %d nao esta mais pendente e foi movida para a fila de tarefas\n", code);
-                return;
-            }
+            InsereFila(aux2,aux.codigo, aux.nome, aux.projeto, aux.inicio, aux.fim, aux.status);
         }
         else
         {
-            anterior = q;
-            q = q->prox;
+            pendentes = InsereLista(pendentes,aux);
+            printf("Tarefa com codigo %d esta pendente e foi removida da fila de tarefas, aperte enter para continuar\n", code);
+            f = aux2;
+            return pendentes;
         }
     }
-
-    printf("Tarefa com codigo %d nao encontrada.\n", code);
+    // Se não encontrou na fila, procurar na lista de tarefas pendentes
+    while (pendentes != NULL)
+    {
+        if (pendentes->info.codigo == code)
+        {
+            // Atualizar status e mover tarefa para a fila de tarefas
+            pendentes->info.status = 0;
+            // Adicionar à fila de tarefas (no final)
+            InsereFila(f, pendentes->info.codigo, pendentes->info.nome, pendentes->info.projeto, pendentes->info.inicio, pendentes->info.fim, pendentes->info.status);
+            free(pendentes);
+            printf("Tarefa com codigo %d nao esta mais pendente e foi movida para a fila de tarefas, aperte enter para continuar\n", code);
+            return pendentes;
+        }
+        pendentes = pendentes->prox;       
+    }
 }
+
 
 void PrintPending(Lista *l)
 {   
@@ -353,7 +304,7 @@ int main()
     pendentes = CriaLista();
     do{
         system("cls");
-        DueOrLate;
+        DueOrLate(trf);
         menu();
         scanf("%d",&select);
         switch (select)
@@ -368,7 +319,7 @@ int main()
                 CompleteTask(trf,&concluidas);
                 break;
             case 4:
-                TaskStatus(trf,&pendentes);
+                pendentes = TaskStatus(trf,pendentes);
                 break;
             case 5:
                 PrintPending(pendentes);
@@ -380,7 +331,7 @@ int main()
                 Status(trf);
                 break;
             case 8:
-                printf("\t Programa finalizado com sucesso, aperte enter para finalizar \n");\
+                printf("\t Programa finalizado com sucesso, aperte enter para finalizar \n");
                 imprimeFila(trf);//LEMBRAR DE TIRAR DEPOIS
                 break;
             default:
@@ -390,8 +341,5 @@ int main()
         fflush(stdin);
         getchar();
     }while(select != 8);
-
-    fflush(stdin);
-    getchar();
     return 0;
 }
