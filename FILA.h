@@ -63,7 +63,7 @@ void ImprimeLista(Lista *l)
 
     if (l == NULL)
     {
-        printf("lista vazia!");
+        printf("lista vazia!\n");
         return;
     }
 

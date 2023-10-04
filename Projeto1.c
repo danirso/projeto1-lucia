@@ -23,6 +23,7 @@ void menu()
 
 void AddTask(Fila *f) 
 {
+    int flag = 0;
     tarefa j;
     system("cls");
     printf("Insira o codigo da tarefa: \n");
@@ -118,62 +119,78 @@ void ChangeTask (Fila *f)
     }while(c == tolower('s'));
 }
 
-void CompleteTask(Fila *f, Lista **concluidas) 
+Lista *CompleteTask(Fila *f, Lista *concluidas) 
 {   
     time_t agora;
     struct tm *atual;
     int code;
-    No *q = f->ini;
-    No *anterior = NULL;
-    tarefa lixo;
-
+    tarefa aux;
+    Fila *aux2 = NULL;
+    int flag=0;
+    aux2 = CriaFila();
     printf("Insira o codigo da tarefa que deseja concluir: ");
     scanf("%d", &code);
 
-    while (q != NULL) 
+    while (!VaziaFila(f))
     {
-        if (q->info.codigo == code) 
+        aux = RetiraFila(f);
+        if (aux.codigo != code)
         {
+            InsereFila(aux2,aux.codigo, aux.nome, aux.projeto, aux.inicio, aux.fim, aux.status);
+        }
+        else
+        {   
+            flag =1;
             time(&agora);
             atual = localtime(&agora);
-            q->info.fim.dia = atual->tm_mday;
-            q->info.fim.mes = atual->tm_mon + 1;
-            q->info.fim.ano = atual->tm_year + 1900;
-            
-            if (anterior != NULL) 
-            {
-                anterior->prox = q->prox;
-            } 
-            else 
-            {
-                f->ini = q->prox;
-            }
-            
-            q->prox = NULL;
-            (*concluidas) = InsereLista(*concluidas, q->info);
-            free(q);
-            q = (anterior != NULL) ? anterior->prox : f->ini;
-        } 
-        else 
-        {
-            anterior = q;
-            q = q->prox;
+            aux.fim.dia = atual->tm_mday;
+            aux.fim.mes = atual->tm_mon + 1;
+            aux.fim.ano = atual->tm_year + 1900;
+            concluidas = InsereLista(concluidas,aux);
+             printf("Tarefa com o codigo %d concluida com sucesso!! Pressione enter para continuar",code);
         }
+        
     }
+    f->ini = aux2->ini;
+    f->fim = aux2->fim;
 
-    printf("Tarefa concluida com sucesso!! Pressione enter para continuar");
+    if (flag == 0)
+    {
+        printf("tarefa com o codigo %d nao encontrada! aperte enter para continuar\n",code);
+        return concluidas;
+    }
+   
+    return concluidas;
 }
 
 Lista *TaskStatus(Fila *f, Lista *pendentes)
 {
-    int code;
+    int code,flag=0;
     printf("Insira o codigo da tarefa: ");
     scanf("%d", &code);
     tarefa aux;
     Fila *aux2 = NULL;
     aux2 = CriaFila();
     No *q,*t;
-    
+
+    // Procura na lista de pendentes se não encontrar, procurar na fila de tarefas
+    while (pendentes != NULL)
+    {
+        if (pendentes->info.codigo == code)
+        {
+            // Atualizar status e mover tarefa para a fila de tarefas
+            flag = 1;
+            pendentes->info.status = 0;
+            // Adicionar à fila de tarefas (no final)
+            InsereFila(f, pendentes->info.codigo, pendentes->info.nome, pendentes->info.projeto, pendentes->info.inicio, pendentes->info.fim, pendentes->info.status);
+            Lista *remover = pendentes;
+            free(remover);
+            pendentes = pendentes->prox;
+            printf("Tarefa com codigo %d nao esta mais pendente e foi movida para a fila de tarefas, aperte enter para continuar\n", code);
+            return pendentes;
+        }
+        pendentes = pendentes->prox;       
+    }
     // Procurar na fila de tarefas
     while (!VaziaFila(f))
     {
@@ -184,28 +201,23 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
         }
         else
         {
+            flag = 1;
+            aux.status = -1;
             pendentes = InsereLista(pendentes,aux);
+            printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes, aperte enter para continuar\n", code);
         }
     }
-    printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes, aperte enter para continuar\n", code);
     f->ini = aux2->ini;
-    return pendentes;
+    f->fim = aux2->fim;
 
-    // Se não encontrou na fila, procurar na lista de tarefas pendentes
-    while (pendentes != NULL)
+    if (flag == 0)
     {
-        if (pendentes->info.codigo == code)
-        {
-            // Atualizar status e mover tarefa para a fila de tarefas
-            pendentes->info.status = 0;
-            // Adicionar à fila de tarefas (no final)
-            InsereFila(f, pendentes->info.codigo, pendentes->info.nome, pendentes->info.projeto, pendentes->info.inicio, pendentes->info.fim, pendentes->info.status);
-            free(pendentes);
-            printf("Tarefa com codigo %d nao esta mais pendente e foi movida para a fila de tarefas, aperte enter para continuar\n", code);
-            return pendentes;
-        }
-        pendentes = pendentes->prox;       
+        printf("tarefa com o codigo %d nao encontrada! pressione enter para continuar",code);
+        return pendentes;
     }
+    
+   
+    return pendentes;
 }
 
 void Status(Lista *L)
@@ -280,7 +292,7 @@ int main()
                 ChangeTask(trf);
                 break;
             case 3:
-                CompleteTask(trf,&concluidas);
+                concluidas = CompleteTask(trf,concluidas);
                 break;
             case 4:
                 pendentes = TaskStatus(trf,pendentes);
