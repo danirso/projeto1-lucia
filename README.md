@@ -1,4 +1,4 @@
 # projeto1-lucia
-feitas as funcoes 1,2,3,5 e 6
+feitas todas as funções!!
 
-faltam 7 e 4
+falta ordenar a lista de pendentes por data de conclusão
