@@ -67,7 +67,7 @@ void ImprimeLista(Lista *l)
         return;
     }
 
-    while(aux!=NULL)
+    while(aux != NULL)
     {
         printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
                aux->info.codigo, aux->info.nome, aux->info.projeto,

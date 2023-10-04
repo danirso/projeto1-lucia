@@ -165,7 +165,7 @@ Lista *CompleteTask(Fila *f, Lista *concluidas)
 
 Lista *TaskStatus(Fila *f, Lista *pendentes)
 {
-    int code,flag=0;
+    int code,find=0,flag = 0;
     printf("Insira o codigo da tarefa: ");
     scanf("%d", &code);
     tarefa aux;
@@ -173,24 +173,6 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
     aux2 = CriaFila();
     No *q,*t;
 
-    // Procura na lista de pendentes se não encontrar, procurar na fila de tarefas
-    while (pendentes != NULL)
-    {
-        if (pendentes->info.codigo == code)
-        {
-            // Atualizar status e mover tarefa para a fila de tarefas
-            flag = 1;
-            pendentes->info.status = 0;
-            // Adicionar à fila de tarefas (no final)
-            InsereFila(f, pendentes->info.codigo, pendentes->info.nome, pendentes->info.projeto, pendentes->info.inicio, pendentes->info.fim, pendentes->info.status);
-            Lista *remover = pendentes;
-            free(remover);
-            pendentes = pendentes->prox;
-            printf("Tarefa com codigo %d nao esta mais pendente e foi movida para a fila de tarefas, aperte enter para continuar\n", code);
-            return pendentes;
-        }
-        pendentes = pendentes->prox;       
-    }
     // Procurar na fila de tarefas
     while (!VaziaFila(f))
     {
@@ -201,22 +183,44 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
         }
         else
         {
+            find = 1;
             flag = 1;
             aux.status = -1;
             pendentes = InsereLista(pendentes,aux);
+            ImprimeLista(pendentes);
             printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes, aperte enter para continuar\n", code);
         }
     }
     f->ini = aux2->ini;
     f->fim = aux2->fim;
-
+    // Procura na lista de pendentes se não encontrar, procurar na fila de tarefas
+    if(find ==0)
+    {
+        while (pendentes != NULL)
+        {   
+            if (pendentes->info.codigo == code)
+            {
+                // Atualizar status e mover tarefa para a fila de tarefas
+                find = 1;
+                flag = 1;
+                pendentes->info.status = 0;
+                // Adicionar à fila de tarefas (no final)
+                InsereFila(f, pendentes->info.codigo, pendentes->info.nome, pendentes->info.projeto, pendentes->info.inicio, pendentes->info.fim, pendentes->info.status);
+                Lista *remover = pendentes;
+                pendentes = pendentes->prox;
+                free(remover);
+                printf("Tarefa com codigo %d nao esta mais pendente e foi movida para a fila de tarefas, aperte enter para continuar\n", code);
+                return pendentes;
+            }
+            pendentes = pendentes->prox;       
+        }
+    }
     if (flag == 0)
     {
         printf("tarefa com o codigo %d nao encontrada! pressione enter para continuar",code);
         return pendentes;
     }
-    
-   
+
     return pendentes;
 }
 
