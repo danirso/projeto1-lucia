@@ -22,7 +22,6 @@ void menu()
 
 void AddTask(Fila *f, int prioridade) 
 {
-    int flag = 0;
     tarefa j;
     j.prio = prioridade;
     printf("Insira o codigo da tarefa: \n");
@@ -109,19 +108,71 @@ void ChangeTask (Fila *f1, Fila *f2, Fila *f3)
             case 1: 
                 printf("Digite a nova prioridade: \n");
                 scanf("%d",&aux);
-                if (aux == prioridade)
+                switch (prioridade)
                 {
-                    printf("Nova prioridade igual a prioridade anterior");
+                    case 1:
+                        if (aux == 1)
+                        {
+                            printf("Nova prioridade igual a prioridade anterior, tente novamente");
+                        }
+                        else if (aux == 2)
+                        {
+                            remove = RemoveTarefa(f1,code);
+                            remove.prio = 2;
+                            InsereFila(f2, remove.prio, remove.codigo, remove.nome, remove.projeto, remove.inicio, remove.fim, remove.status);
+                            q = f2->ini;
+                        }
+                        else
+                        {
+                            remove = RemoveTarefa(f1,code);
+                            remove.prio = 3;
+                            InsereFila(f3, remove.prio, remove.codigo, remove.nome, remove.projeto, remove.inicio, remove.fim, remove.status);
+                            q = f3->ini;
+                        }
+                        break;
+                    case 2: 
+                        if (aux == 2)
+                        {
+                            printf("Nova prioridade igual a prioridade anterior, tente novamente");
+                        }
+                        else if (aux == 1)
+                        {
+                            remove = RemoveTarefa(f2,code);
+                            remove.prio = 1;
+                            InsereFila(f1, remove.prio, remove.codigo, remove.nome, remove.projeto, remove.inicio, remove.fim, remove.status);
+                            q = f1->ini;
+                        }
+                        else
+                        {
+                            remove = RemoveTarefa(f2,code);
+                            remove.prio = 3;
+                            InsereFila(f3, remove.prio, remove.codigo, remove.nome, remove.projeto, remove.inicio, remove.fim, remove.status);
+                            q = f1->ini;
+                        }
+                        break;
+                    case 3: 
+                        if (aux == 3)
+                        {
+                            printf("Nova prioridade igual a prioridade anterior, tente novamente");
+                        }
+                        else if (aux == 1)
+                        {
+                            remove = RemoveTarefa(f3,code);
+                            remove.prio = 1;
+                            InsereFila(f1, remove.prio, remove.codigo, remove.nome, remove.projeto, remove.inicio, remove.fim, remove.status);
+                            q = f1->ini;
+                        }
+                        else
+                        {
+                            remove = RemoveTarefa(f3,code);
+                            remove.prio = 2;
+                            InsereFila(f2, remove.prio, remove.codigo, remove.nome, remove.projeto, remove.inicio, remove.fim, remove.status);
+                        }
+                        break;
+                    default:
+                        printf("Valor invalido para a nova prioridade");
+                        break;
                 }
-                else if (aux == 1 && prioridade == 2)
-                {   
-                    while (q != NULL && q->info.codigo != code)
-                    {
-                        q=q->prox;
-                    }
-                   remove = RetiraFila(f2); 
-                }
-                
                 break;
             case 2:
                 printf("Digite o novo codigo: \n");
@@ -211,7 +262,7 @@ void TaskStatus(Fila *f, Lista **pendentes)
     Fila *aux2 = NULL;
     aux2 = CriaFila();
     Lista *novo = *pendentes;
-    Lista *temp = NULL, *temp2 = NULL;
+    Lista *temp = NULL;
 
     printf("Insira o codigo da tarefa que deseja alterar o status: \n");
     scanf("%d", &code);
@@ -396,9 +447,7 @@ int main()
                 }
                 break;
             case 2: 
-                    ChangeTask(trf1,trf2,trf3);
-                    break;
-                }
+                ChangeTask(trf1,trf2,trf3);
                 break;
             case 3:
                 printf("Digite a prioridade da tarefa que deseja concluir: \n");
@@ -465,6 +514,7 @@ int main()
             default:
                 printf("\t Selecao invalida");
                 break;
+                
         }
         fflush(stdin);
         getchar();

@@ -168,9 +168,9 @@ tarefa RetiraFila(Fila* f)
     return trf;
 }
 
-tarefa RemoveTarefa (Fila **f, int code)
+tarefa RemoveTarefa (Fila *f, int code)
 {
-    tarefa aux;
+    tarefa aux, retorno;
     Fila *temp;
     temp = CriaFila();
 
@@ -183,14 +183,12 @@ tarefa RemoveTarefa (Fila **f, int code)
         }
         else
         {
-
+            retorno = aux;
         }
-
-
-    
     }
-    
-
+    f->ini = temp->ini;
+    f->fim = temp->fim;
+    return retorno;
 }
 
 void ImprimeFila(Fila *f)
