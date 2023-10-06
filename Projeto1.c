@@ -1,7 +1,6 @@
-//Daniel Scanavini Rossi RA:22000787, Lucas Valério Berti RA:22007440, Leonardo Caberlim de Souza RA:22017958
+//Daniel Scanavini Rossi RA:22000787, Lucas Valerio Berti RA:22007440, Leonardo Caberlim de Souza RA:22017958
 #include <stdio.h>
 #include <stdlib.h>
-#include <locale.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
@@ -21,11 +20,11 @@ void menu()
     printf("\t>>");
 }
 
-void AddTask(Fila *f) 
+void AddTask(Fila *f, int prioridade) 
 {
     int flag = 0;
     tarefa j;
-    system("cls");
+    j.prio = prioridade;
     printf("Insira o codigo da tarefa: \n");
     scanf("%d", &j.codigo);
     printf("Digite o nome da tarefa: \n");
@@ -47,24 +46,49 @@ void AddTask(Fila *f)
     printf("Insira o ano de limite: \n");
     scanf("%d", &j.fim.ano);
     j.status = 0; //1:atrasada, 0:em dia, -1:pendente
-    InsereFila(f, j.codigo, j.nome, j.projeto, j.inicio, j.fim, j.status);
-    printf("Tarefa inserida com sucesso!! Aperte enter para continuar");
+    InsereFila(f, j.prio, j.codigo, j.nome, j.projeto, j.inicio, j.fim, j.status);
+    printf("Tarefa inserida com sucesso! Aperte enter para continuar");
 }
 
-void ChangeTask (Fila *f)
+void ChangeTask (Fila *f1, Fila *f2, Fila *f3)
 {
-    No * q = f->ini;
-    int code,select;
+    No *q = NULL;
+    int code,prioridade,select,aux;
+    tarefa remove;
     char c='s';
-    printf("Insira o codigo da tarefa que deseja alterar: ");
+    printf("Insira a prioridade da tarefa que deseja alterar: \n");
+    scanf("%d",&prioridade);
+
+    do
+    {
+        switch (prioridade)
+        {
+            case 1: 
+                q = f1->ini;
+                break;
+            case 2: 
+                q = f2->ini;
+                break;
+            case 3:
+                q = f3->ini;
+                break;
+            default:
+                printf("Valor inserido invalido para a prioridade");
+                break;
+        }
+    }while (q==NULL);
+
+    printf("Insira o codigo da tarefa que deseja alterar: \n");
     scanf("%d",&code);
+
     while (q != NULL && q->info.codigo != code)
     {
         q=q->prox;
     }
+
     if(q == NULL)
     {
-        printf("Tarefa com o codigo %d nao encontrada",code);
+        printf("Tarefa com o codigo %d nao encontrada! Aperte enter para continuar",code);
         return;
     }
 
@@ -72,50 +96,68 @@ void ChangeTask (Fila *f)
     {
         system("cls");
         printf("Qual informacao deseja alterar: \n");
-        printf("\t1 - Alterar o codigo\n");
-        printf("\t2 - Alterar o nome\n");
-        printf("\t3 - Alterar o nome do projeto\n");
-        printf("\t4 - Alterar a data de inicio\n");
-        printf("\t5 - Alterar a data de limite\n");
+        printf("\t1 - Alterar a prioridade\n");
+        printf("\t2 - Alterar o codigo\n");
+        printf("\t3 - Alterar o nome\n");
+        printf("\t4 - Alterar o nome do projeto\n");
+        printf("\t5 - Alterar a data de inicio\n");
+        printf("\t6 - Alterar a data de limite\n");
         printf("\t>>");
         scanf("%d",&select);
 
         switch (select) {
-            case 1:
-                printf("Digite o novo codigo: ");
-                scanf("%d", &q->info.codigo);
+            case 1: 
+                printf("Digite a nova prioridade: \n");
+                scanf("%d",&aux);
+                if (aux == prioridade)
+                {
+                    printf("Nova prioridade igual a prioridade anterior");
+                }
+                else if (aux == 1 && prioridade == 2)
+                {   
+                    while (q != NULL && q->info.codigo != code)
+                    {
+                        q=q->prox;
+                    }
+                   remove = RetiraFila(f2); 
+                }
+                
                 break;
             case 2:
-                printf("Digite o novo nome: ");
-                scanf("%s", q->info.nome);
+                printf("Digite o novo codigo: \n");
+                scanf("%d", &q->info.codigo);
                 break;
             case 3:
-                printf("Digite o novo nome do projeto: ");
-                scanf("%s", q->info.projeto);
+                printf("Digite o novo nome: \n");
+                scanf("%s", q->info.nome);
                 break;
             case 4:
-                printf("Digite a nova dia de inicio: ");
-                scanf("%d", &q->info.inicio.dia);
-                printf("Digite a nova mes de inicio: ");
-                scanf("%d", &q->info.inicio.mes);
-                printf("Digite a nova ano de inicio: ");
-                scanf("%d", &q->info.inicio.ano);
+                printf("Digite o novo nome do projeto: \n");
+                scanf("%s", q->info.projeto);
                 break;
             case 5:
-                printf("Digite a nova dia de limite: ");
+                printf("Digite o novo dia de inicio: \n");
+                scanf("%d", &q->info.inicio.dia);
+                printf("Digite o novo mes de inicio: \n");
+                scanf("%d", &q->info.inicio.mes);
+                printf("Digite o novo ano de inicio: \n");
+                scanf("%d", &q->info.inicio.ano);
+                break;
+            case 6:
+                printf("Digite o novo dia de limite: \n");
                 scanf("%d", &q->info.fim.dia);
-                printf("Digite a nova mes de limite: ");
+                printf("Digite o novo mes de limite: \n");
                 scanf("%d", &q->info.fim.mes);
-                printf("Digite a nova ano de limite: ");
+                printf("Digite o novo ano de limite: \n");
                 scanf("%d", &q->info.fim.ano);
                 break;
             default:
                 printf("Selecao invalida.\n");
         }
-        printf("Deseja alterar mais algum dado? (s/n)");
+        printf("Deseja alterar mais algum dado? (s/n)\n");
         fflush(stdin);
         scanf("%c",&c);
-        printf("Tarefa alterada com sucesso!! aperte enter para continuar");
+        printf("Tarefa alterada com sucesso! Aperte enter para continuar");
     }while(c == tolower('s'));
 }
 
@@ -128,7 +170,8 @@ Lista *CompleteTask(Fila *f, Lista *concluidas)
     Fila *aux2 = NULL;
     int flag=0;
     aux2 = CriaFila();
-    printf("Insira o codigo da tarefa que deseja concluir: ");
+
+    printf("Insira o codigo da tarefa que deseja concluir: \n");
     scanf("%d", &code);
 
     while (!VaziaFila(f))
@@ -136,7 +179,7 @@ Lista *CompleteTask(Fila *f, Lista *concluidas)
         aux = RetiraFila(f);
         if (aux.codigo != code)
         {
-            InsereFila(aux2,aux.codigo, aux.nome, aux.projeto, aux.inicio, aux.fim, aux.status);
+            InsereFila(aux2, aux.prio, aux.codigo, aux.nome, aux.projeto, aux.inicio, aux.fim, aux.status);
         }
         else
         {   
@@ -147,31 +190,31 @@ Lista *CompleteTask(Fila *f, Lista *concluidas)
             aux.fim.mes = atual->tm_mon + 1;
             aux.fim.ano = atual->tm_year + 1900;
             concluidas = InsereLista(concluidas,aux);
-             printf("Tarefa com o codigo %d concluida com sucesso!! Pressione enter para continuar",code);
-        }
-        
+            printf("Tarefa com o codigo %d concluida com sucesso! Aperte enter para continuar",code);
+        }    
     }
     f->ini = aux2->ini;
     f->fim = aux2->fim;
 
     if (flag == 0)
     {
-        printf("tarefa com o codigo %d nao encontrada! aperte enter para continuar\n",code);
+        printf("Tarefa com o codigo %d nao encontrada! Aperte enter para continuar\n",code);
         return concluidas;
     }
-   
     return concluidas;
 }
 
-Lista *TaskStatus(Fila *f, Lista *pendentes)
+void TaskStatus(Fila *f, Lista **pendentes)
 {
     int code,find=0,flag = 0;
-    printf("Insira o codigo da tarefa: ");
-    scanf("%d", &code);
     tarefa aux;
     Fila *aux2 = NULL;
     aux2 = CriaFila();
-    No *q,*t;
+    Lista *novo = *pendentes;
+    Lista *temp = NULL, *temp2 = NULL;
+
+    printf("Insira o codigo da tarefa que deseja alterar o status: \n");
+    scanf("%d", &code);
 
     // Procurar na fila de tarefas
     while (!VaziaFila(f))
@@ -179,49 +222,88 @@ Lista *TaskStatus(Fila *f, Lista *pendentes)
         aux = RetiraFila(f);
         if (aux.codigo != code)
         {
-            InsereFila(aux2,aux.codigo, aux.nome, aux.projeto, aux.inicio, aux.fim, aux.status);
+            InsereFila(aux2, aux.prio, aux.codigo, aux.nome, aux.projeto, aux.inicio, aux.fim, aux.status);
         }
         else
         {
             find = 1;
             flag = 1;
             aux.status = -1;
-            pendentes = InsereLista(pendentes,aux);
-            ImprimeLista(pendentes);
-            printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes, aperte enter para continuar\n", code);
+            if (novo == NULL)
+            {
+                *pendentes = InsereLista(*pendentes,aux);
+                printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes! Aperte enter para continuar\n", code);
+            }
+            else
+            {
+                while(novo != NULL && (aux.fim.ano > novo->info.fim.ano || (aux.fim.ano <= novo->info.fim.ano && aux.fim.mes > novo->info.fim.mes ||
+                    (aux.fim.ano <= novo->info.fim.ano && aux.fim.mes <= novo->info.fim.mes && aux.fim.dia > novo->info.fim.dia))))
+                {
+                    temp = InsereLista(temp,novo->info);
+                    novo = novo->prox;
+                }
+                if (novo == NULL)
+                {
+                    temp = InsereLista(temp,aux);
+                    *pendentes = InverteLista(temp);
+                    printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes! Aperte enter para continuar\n", code);
+                }
+                else
+                {
+                    novo = InverteLista(novo);
+                    *pendentes = NULL;
+                    while (novo != NULL)
+                    {
+                        *pendentes=InsereLista(*pendentes,novo->info);
+                        novo = novo->prox;
+                    }
+                    *pendentes = InsereLista(*pendentes,aux);
+                    while(temp != NULL)
+                    {
+                        *pendentes = InsereLista(*pendentes,temp->info);
+                        temp = temp->prox;
+                    }
+                    printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes! Aperte enter para continuar\n", code);
+                }
+            }
         }
     }
     f->ini = aux2->ini;
     f->fim = aux2->fim;
-    // Procura na lista de pendentes se não encontrar, procurar na fila de tarefas
-    if(find ==0)
+
+    if (find == 0)
     {
-        while (pendentes != NULL)
-        {   
-            if (pendentes->info.codigo == code)
-            {
-                // Atualizar status e mover tarefa para a fila de tarefas
-                find = 1;
-                flag = 1;
-                pendentes->info.status = 0;
-                // Adicionar à fila de tarefas (no final)
-                InsereFila(f, pendentes->info.codigo, pendentes->info.nome, pendentes->info.projeto, pendentes->info.inicio, pendentes->info.fim, pendentes->info.status);
-                Lista *remover = pendentes;
-                pendentes = pendentes->prox;
-                free(remover);
-                printf("Tarefa com codigo %d nao esta mais pendente e foi movida para a fila de tarefas, aperte enter para continuar\n", code);
-                return pendentes;
-            }
-            pendentes = pendentes->prox;       
+        while (novo != NULL && novo->info.codigo != code) 
+        {
+            temp = novo;
+            novo = novo->prox;
         }
-    }
-    if (flag == 0)
-    {
-        printf("tarefa com o codigo %d nao encontrada! pressione enter para continuar",code);
-        return pendentes;
+
+        if (novo != NULL && novo->info.codigo == code) 
+        {
+            if (temp != NULL) 
+            {
+                temp->prox = novo->prox;
+            } 
+            else 
+            {
+                *pendentes = novo->prox;
+            }
+
+            flag = 1;
+            novo->info.status = 0;
+            InsereFila(f, novo->info.prio, novo->info.codigo, novo->info.nome, novo->info.projeto, novo->info.inicio, novo->info.fim, novo->info.status);
+            free(novo); 
+            printf("Tarefa com o codigo %d nao esta pendente e foi movida para a fila de tarefas! Aperte enter para continuar", code);
+        } 
     }
 
-    return pendentes;
+    if (flag == 0)
+    {
+        printf("Tarefa com o codigo %d nao encontrada! Aperte enter para continuar",code);
+        return;
+    }
+    return;
 }
 
 void Status(Lista *L)
@@ -232,8 +314,8 @@ void Status(Lista *L)
         if (aux->info.status == 1)
         {
             printf("Tarefas concluidas atrasadas: \n");
-            printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
-               aux->info.codigo, aux->info.nome, aux->info.projeto,
+            printf(" Prioridade: %d\n Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+               aux->info.prio, aux->info.codigo, aux->info.nome, aux->info.projeto,
                aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
                aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
                aux->info.status);
@@ -241,8 +323,8 @@ void Status(Lista *L)
         else
         {
             printf("Tarefas concluidas em dia: \n");
-            printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
-               aux->info.codigo, aux->info.nome, aux->info.projeto,
+            printf(" Prioridade: %d\n Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+               aux->info.prio, aux->info.codigo, aux->info.nome, aux->info.projeto,
                aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
                aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
                aux->info.status);
@@ -257,14 +339,15 @@ void DueOrLate(Fila *trf)
     struct tm *atual;
     time(&agora);
     atual = localtime(&agora);
-
     No *q = trf->ini;
 
-    while (q != NULL) {
+    while (q != NULL) 
+    {
         if (atual->tm_year + 1900 > q->info.fim.ano ||(atual->tm_year + 1900 == q->info.fim.ano && (atual->tm_mon + 1) > q->info.fim.mes) || (atual->tm_year + 1900 == q->info.fim.ano && (atual->tm_mon + 1) == q->info.fim.mes && atual->tm_mday > q->info.fim.dia)) 
         {
             q->info.status = 1;
-        } else 
+        } 
+        else 
         {
             q->info.status = 0;
         }
@@ -274,49 +357,110 @@ void DueOrLate(Fila *trf)
 
 int main()
 {
-    setlocale(LC_ALL,"portuguese");
     Lista *concluidas,*pendentes;
-    char continuo = 's';
-    int select;
-    Fila *trf;
-    trf = CriaFila(trf);
+    int select,priori;
+    Fila *trf1, *trf2, *trf3;
+    trf1 = CriaFila();
+    trf2 = CriaFila();
+    trf3 = CriaFila();
     concluidas = CriaLista();
     pendentes = CriaLista();
+
     do{
         system("cls");
-        DueOrLate(trf);
+        DueOrLate(trf1);
+        DueOrLate(trf2);
+        DueOrLate(trf3);
         menu();
         scanf("%d",&select);
         switch (select)
         {
             case 1:
-                AddTask(trf);
+            system("cls");
+                printf("Digite a prioridade da tarefa: \n");
+                scanf("%d",&priori);
+                switch (priori)
+                {
+                    case 1:
+                        AddTask(trf1,priori);
+                        break;
+                    case 2:
+                        AddTask(trf2,priori);
+                        break;
+                    case 3: 
+                        AddTask(trf3,priori);
+                        break;
+                default:
+                    printf("Valor inserido invalido para a prioridade, aperte enter para continuar");
+                    break;
+                }
                 break;
             case 2: 
-                ChangeTask(trf);
+                    ChangeTask(trf1,trf2,trf3);
+                    break;
+                }
                 break;
             case 3:
-                concluidas = CompleteTask(trf,concluidas);
+                printf("Digite a prioridade da tarefa que deseja concluir: \n");
+                scanf("%d",&priori);
+                switch (priori)
+                {
+                    case 1:
+                        concluidas = CompleteTask(trf1,concluidas);
+                        break;
+                    case 2:
+                        concluidas = CompleteTask(trf2,concluidas);
+                        break;
+                    case 3: 
+                        concluidas = CompleteTask(trf3,concluidas);
+                        break;
+                default:
+                    printf("Valor inserido invalido para a prioridade, aperte enter para continuar");
+                    break;
+                }
                 break;
             case 4:
-                pendentes = TaskStatus(trf,pendentes);
+                printf("Digite a prioridade da tarefa que deseja alterar o status: \n");
+                scanf("%d",&priori);
+                switch (priori)
+                {
+                    case 1:
+                        TaskStatus(trf1,&pendentes);
+                        break;
+                    case 2:
+                        TaskStatus(trf2,&pendentes);
+                        break;
+                    case 3: 
+                        TaskStatus(trf3,&pendentes);
+                        break;
+                default:
+                    printf("Valor inserido invalido para a prioridade, aperte enter para continuar");
+                    break;
+                }
                 break;
             case 5:
-                printf("tarefas pendentes: \n");
+                printf("Tarefas pendentes: \n");
                 ImprimeLista(pendentes);
-                printf("aperte enter para continuar");
+                printf("Aperte enter para continuar");
                 break;
             case 6:
-                printf("tarefas concluidas: \n");
+                printf("Tarefas concluidas: \n");
                 ImprimeLista(concluidas);
-                printf("aperte enter para continuar");
+                printf("Aperte enter para continuar");
                 break;
             case 7:
                 Status(concluidas);
                 break;
             case 8:
                 printf("\t Programa finalizado com sucesso, aperte enter para finalizar \n");
-                imprimeFila(trf);//LEMBRAR DE TIRAR DEPOIS
+                break;
+            case 9:
+                printf("Prioridade 1: \n");
+                ImprimeFila(trf1);
+                printf("Prioridade 2: \n");
+                ImprimeFila(trf2);
+                printf("Prioridade 3: \n");
+                ImprimeFila(trf3);
                 break;
             default:
                 printf("\t Selecao invalida");

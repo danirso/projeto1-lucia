@@ -11,11 +11,11 @@ typedef struct Data
     int dia;
     int mes;
     int ano;
-
 } data;
 
 typedef struct Tarefa
 {
+    int prio;
     int codigo;
     char nome[30];
     char projeto[30];
@@ -57,6 +57,20 @@ Lista *InsereLista(Lista *recebida, tarefa t)
     return novo;
 }
 
+Lista* InverteLista(Lista* l) 
+{
+    Lista* invertida = NULL;
+
+    while (l != NULL) 
+    {
+        Lista *temp = l;
+        l = l->prox;
+        temp->prox = invertida;
+        invertida = temp;
+    }
+    return invertida;
+}
+
 void ImprimeLista(Lista *l)
 {   
     Lista *aux = l;
@@ -69,10 +83,12 @@ void ImprimeLista(Lista *l)
 
     while(aux != NULL)
     {
-        printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
-               aux->info.codigo, aux->info.nome, aux->info.projeto,
-               aux->info.inicio.dia, aux->info.inicio.mes, aux->info.inicio.ano,
-               aux->info.fim.dia, aux->info.fim.mes, aux->info.fim.ano,
+        printf(" Prioridade: %d\n Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+               aux->info.prio, aux->info.codigo,
+               aux->info.nome, aux->info.projeto,
+               aux->info.inicio.dia, aux->info.inicio.mes,
+               aux->info.inicio.ano, aux->info.fim.dia,
+               aux->info.fim.mes, aux->info.fim.ano,
                aux->info.status);
         aux = aux->prox;
     }
@@ -81,7 +97,9 @@ void ImprimeLista(Lista *l)
 int VaziaFila(Fila *f)
 {
     if (f->ini == NULL)
+    {
         return 1;
+    }
     return 0;
 }
 
@@ -97,15 +115,19 @@ No* ins_fim(No* fim, tarefa A)
     No* p = (No*) malloc(sizeof(No));
     p->info = A;
     p->prox = NULL;
+
     if (fim != NULL) 
+    {
         fim->prox = p;
+    }
     return p;
 }
 
-void InsereFila(Fila *f, int codigo, const char* nome, const char* projeto, data inicio, data fim, int status)
+void InsereFila(Fila *f, int prio, int codigo, const char* nome, const char* projeto, data inicio, data fim, int status)
 {
     tarefa trf;
     trf.codigo = codigo;
+    trf.prio = prio;
     strncpy(trf.nome, nome, sizeof(trf.nome));
     strncpy(trf.projeto, projeto, sizeof(trf.projeto));
     trf.inicio = inicio;
@@ -118,9 +140,9 @@ void InsereFila(Fila *f, int codigo, const char* nome, const char* projeto, data
         f->ini = f->fim;
     }
 }
+
 No *retira_ini(No *ini)
 {
-    
     No* p = ini->prox;
     free(ini);
     return p;
@@ -146,13 +168,38 @@ tarefa RetiraFila(Fila* f)
     return trf;
 }
 
-void imprimeFila(Fila *f)
+tarefa RemoveTarefa (Fila **f, int code)
+{
+    tarefa aux;
+    Fila *temp;
+    temp = CriaFila();
+
+    while(!VaziaFila(f))
+    {
+        aux = RetiraFila(f);
+        if (aux.codigo != code)
+        {
+            InsereFila(temp, aux.prio, aux.codigo, aux.nome, aux.projeto, aux.inicio, aux.fim, aux.status);
+        }
+        else
+        {
+
+        }
+
+
+    
+    }
+    
+
+}
+
+void ImprimeFila(Fila *f)
 {
     No *q;
     for (q = f->ini; q != NULL; q = q->prox)
     {
-        printf(" Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
-               q->info.codigo, q->info.nome, q->info.projeto,
+        printf(" Prioridade: %d\n Codigo: %d\n Nome: %s\n Projeto: %s\n Inicio: %02d/%02d/%04d\n Fim: %02d/%02d/%04d\n Status: %d\n\n",
+               q->info.prio, q->info.codigo, q->info.nome, q->info.projeto,
                q->info.inicio.dia, q->info.inicio.mes, q->info.inicio.ano,
                q->info.fim.dia, q->info.fim.mes, q->info.fim.ano,
                q->info.status);
@@ -162,11 +209,10 @@ void imprimeFila(Fila *f)
     if (f == NULL)
     {
         printf("A fila esta vazia!");
-    }
-    
+    }   
 }
 
-Fila *liberaFila(Fila *f)
+Fila *LiberaFila(Fila *f)
 {
     No *q = f->ini;
     while (q != NULL)
