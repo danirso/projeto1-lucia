@@ -13,10 +13,11 @@ void menu()
     printf("\t2 - Modificar uma tarefa\n");
     printf("\t3 - Concluir uma tarefa\n");
     printf("\t4 - Alterar status da tarefa\n");
-    printf("\t5 - Lista de tarefas pendentes\n");
-    printf("\t6 - Lista de tarefas concluidas\n");
-    printf("\t7 - Lista de tarefas concluidas(Com e sem atrasos)\n");
-    printf("\t8 - Sair do programa\n");
+    printf("\t5 - Imprimir lista de tarefas pendentes\n");
+    printf("\t6 - Imprimir lista de tarefas concluidas\n");
+    printf("\t7 - Imprimir lista de tarefas concluidas(Com e sem atrasos)\n");
+    printf("\t8 - Imprimir fila de tarefas\n");
+    printf("\t9 - Sair do programa\n");
     printf("\t>>");
 }
 
@@ -287,38 +288,74 @@ void TaskStatus(Fila *f, Lista **pendentes)
             }
             else
             {
-                while(novo != NULL && (aux.fim.ano > novo->info.fim.ano || (aux.fim.ano <= novo->info.fim.ano && aux.fim.mes > novo->info.fim.mes ||
-                    (aux.fim.ano <= novo->info.fim.ano && aux.fim.mes <= novo->info.fim.mes && aux.fim.dia > novo->info.fim.dia))))
+                while(novo != NULL && aux.prio > novo->info.prio)
                 {
                     temp = InsereLista(temp,novo->info);
                     novo = novo->prox;
                 }
+
                 if (novo == NULL)
                 {
                     temp = InsereLista(temp,aux);
                     *pendentes = InverteLista(temp);
                     printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes! Aperte enter para continuar\n", code);
                 }
-                else
+                else if (novo->info.prio == aux.prio)
                 {
-                    novo = InverteLista(novo);
-                    *pendentes = NULL;
-                    while (novo != NULL)
+                     if ((aux.fim.ano > novo->info.fim.ano) ||((aux.fim.ano == novo->info.fim.ano) && (aux.fim.mes > novo->info.fim.mes)) ||
+                        ((aux.fim.ano == novo->info.fim.ano) && (aux.fim.mes == novo->info.fim.mes) && (aux.fim.dia > novo->info.fim.dia)))
                     {
-                        *pendentes=InsereLista(*pendentes,novo->info);
+                        while(novo != NULL && ((aux.prio == novo->info.prio) && ((aux.fim.ano > novo->info.fim.ano) ||((aux.fim.ano == novo->info.fim.ano) && (aux.fim.mes > novo->info.fim.mes)) ||
+                        ((aux.fim.ano == novo->info.fim.ano) && (aux.fim.mes == novo->info.fim.mes) && (aux.fim.dia > novo->info.fim.dia)))))
+                        {
+                            temp = InsereLista(temp,novo->info);
+                            novo = novo->prox;
+                        }
+                        if (novo == NULL)
+                        {
+                            temp = InsereLista(temp,aux);
+                            *pendentes = InverteLista(temp);
+                            printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes! Aperte enter para continuar\n", code);
+                        }
+                        else
+                        {
+                            temp = InsereLista(temp,aux);
+                            while(novo != NULL)
+                            {
+                                temp = InsereLista(temp,novo->info);
+                                novo = novo->prox;
+                            }
+                            *pendentes = InverteLista(temp);
+                            printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes! Aperte enter para continuar\n", code);
+                        }   
+                    }
+                    else
+                    {
+                        temp = InsereLista(temp,aux);
+                        while(novo != NULL)
+                        {
+                            temp = InsereLista(temp,novo->info);
+                            novo = novo->prox;
+                        }
+                        *pendentes = InverteLista(temp);
+                        printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes! Aperte enter para continuar\n", code);
+                    } 
+                }
+                else //nao existe nenhuma termo da prioridade a ser inserida
+                {
+                    temp = InsereLista(temp,aux);
+                    while(novo != NULL)
+                    {
+                        temp = InsereLista(temp,novo->info);
                         novo = novo->prox;
                     }
-                    *pendentes = InsereLista(*pendentes,aux);
-                    while(temp != NULL)
-                    {
-                        *pendentes = InsereLista(*pendentes,temp->info);
-                        temp = temp->prox;
-                    }
+                    *pendentes = InverteLista(temp);
                     printf("Tarefa com codigo %d esta pendente e foi movida para a lista de tarefas pendentes! Aperte enter para continuar\n", code);
-                }
+                } 
             }
         }
     }
+    
     f->ini = aux2->ini;
     f->fim = aux2->fim;
 
@@ -501,15 +538,15 @@ int main()
                 Status(concluidas);
                 break;
             case 8:
-                printf("\t Programa finalizado com sucesso, aperte enter para finalizar \n");
-                break;
-            case 9:
                 printf("Prioridade 1: \n");
                 ImprimeFila(trf1);
                 printf("Prioridade 2: \n");
                 ImprimeFila(trf2);
                 printf("Prioridade 3: \n");
                 ImprimeFila(trf3);
+                break;
+            case 9:
+                printf("\t Programa finalizado com sucesso, aperte enter para finalizar \n");
                 break;
             default:
                 printf("\t Selecao invalida");
@@ -518,6 +555,6 @@ int main()
         }
         fflush(stdin);
         getchar();
-    }while(select != 8);
+    }while(select != 9);
     return 0;
 }
